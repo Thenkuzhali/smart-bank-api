@@ -1,6 +1,7 @@
-from sqlalchemy import Column, Integer, String, DateTime, Text
+from sqlalchemy import Column, Integer, String, DateTime, Text, JSON, Boolean
 from sqlalchemy.sql import func
 from ..db.session import Base
+from sqlalchemy.orm import relationship
 
 class User(Base):
     __tablename__ = "users"
@@ -16,7 +17,11 @@ class User(Base):
     # Government ID for KYC (store encrypted or hashed)
     gov_id_type = Column(String(50), nullable=True)
     gov_id_number = Column(String(255), nullable=True)  # encrypted
-    kyc_document_urls = Column(Text, nullable=True)     # JSON string of URLs
+    kyc_document_urls = Column(JSON, default=[])     # JSON string of URLs
+    is_active = Column(Boolean, default=True)
 
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     updated_at = Column(DateTime(timezone=True), onupdate=func.now())
+
+    # One-to-one KYC relationship
+    kyc = relationship("KYC", uselist=False, back_populates="user")
