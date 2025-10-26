@@ -118,8 +118,82 @@ Passwords stored using bcrypt hashing
 
 Government IDs stored via AES-256 encryption
 
-JWT-based authentication tokens
-
 Audit logs for every registration and KYC update
 
-Role-based access control (RBAC)
+## Use Case 2: Account Creation
+
+### Trigger
+Customer requests to create a new bank account.
+
+---
+
+### Flow
+1. **Choose Account Type**  
+   - Customer selects the type of account (Savings, Current, Fixed Deposit, etc.) via API request.  
+   - System validates that the account type is supported.  
+
+2. **System Generates Account Number**  
+   - Backend generates a unique account number following a pattern, e.g., `ACC-YYYYMMDD-XXXX`.  
+   - Ensures no collisions with existing accounts.  
+
+3. **Initial Deposit Validation**  
+   - Customer submits initial deposit amount.  
+   - System validates against the minimum required deposit for the chosen account type.  
+   - If valid, account creation proceeds; if invalid, the request is rejected with a meaningful error message.  
+
+4. **Account Creation Confirmation**  
+   - Backend stores account details in the database (linked to user ID).  
+   - Returns the account number, type, initial balance, and status (`ACTIVE`).  
+
+---
+
+### JWT Authentication for Login
+- **Purpose:** Secure customer access to account operations.  
+- **Flow:**
+  1. Customer logs in with email and password.
+  2. Backend verifies credentials and returns a JWT token.  
+  3. Token includes user ID, role, and expiration time.  
+  4. Token is required for subsequent operations like account creation, balance check, and transactions.  
+
+- **Endpoints:**
+  - `POST /api/v1/auth/login` → Returns JWT token.
+  - Middleware validates JWT token for protected endpoints.
+
+---
+
+### API Contract
+
+#### 1. Create Account
+**POST /api/v1/accounts/create**  
+
+**Request Body:**
+```json
+{
+  "user_id": "USR-20251026-001",
+  "account_type": "SAVINGS",
+  "initial_deposit": 5000
+}
+```
+**Response:**
+```json
+{
+  "account_number": "ACC-20251026-0001",
+  "account_type": "SAVINGS",
+  "balance": 5000,
+  "status": "ACTIVE",
+  "message": "Account created successfully."
+}
+```
+#### 2. Get Account Details
+
+**GET /api/v1/accounts/{account_number}**
+
+**Response:**
+{
+  "account_number": "ACC-20251026-0001",
+  "user_id": "USR-20251026-001",
+  "account_type": "SAVINGS",
+  "balance": 5000,
+  "status": "ACTIVE",
+  "created_at": "2025-10-26T13:00:00Z"
+}
