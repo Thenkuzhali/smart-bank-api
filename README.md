@@ -60,18 +60,24 @@ Registers a new user and stores encrypted KYC details.
 
 ```json
 {
-    "first_name": "Thenkuzhali",
-    "last_name": "S",
-    "email": "thenkuzhali@example.com",
-    "phone_number": "+91-9876543210",
-    "password": "Strong@123",
-    "address": "Trichy, Tamil Nadu, India",
-    "gov_id_type": "Aadhaar",
-    "gov_id_number": "1234-5678-9123",
-    "kyc_document_urls": [
-        "https://storage.smartbank.in/kyc/thenkuzhali_adhar_front.png",
-        "https://storage.smartbank.in/kyc/thenkuzhali_adhar_back.png"
-    ]
+  "first_name": "Zara",
+  "last_name": "S",
+  "email": "zara@example.com",
+  "phone_number": "8940054133",
+  "password": "Zara@123",
+  "address": "Navalur, Chennai",
+  "gov_ids": [
+    {
+      "gov_id_type": "Aadhar",
+      "gov_id_number": "6734 8934 2323",
+      "document_url": "https://example.com/aadhar.pdf"
+    },
+    {
+      "gov_id_type": "Passport",
+      "gov_id_number": "M1234567",
+      "document_url": "https://example.com/passport.pdf"
+    }
+  ]
 }
 ```
 **Response:**
