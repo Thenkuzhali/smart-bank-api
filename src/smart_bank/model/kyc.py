@@ -11,5 +11,7 @@ class KYC(Base):
     verified_by = Column(String, nullable=True)
     verified_at = Column(DateTime, nullable=True)
 
-    # Optional: relationship to user
+    # relationship to user
     user = relationship("User", back_populates="kyc")
+    # One-to-many relationship with KYC documents
+    kyc_documents = relationship("KycDocument", back_populates="user", cascade="all, delete-orphan")

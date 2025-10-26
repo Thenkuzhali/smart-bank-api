@@ -2,6 +2,7 @@ from sqlalchemy.orm import Session
 from passlib.context import CryptContext
 from ..repositories.user_repo import UserRepository
 from ..schema.user_schema import UserCreate
+from ..model.kyc_documents import KycDocument
 
 pwd_context = CryptContext(schemes=["argon2"], deprecated="auto")
 
@@ -22,12 +23,23 @@ class UserService:
         # Hash password
         hashed_password = UserService.hash_password(user.password)
 
+        # Prepare user data
         user_data = user.model_dump()
         user_data["hashed_password"] = hashed_password
-        del user_data["password"]  # remove plain password
-        
-        # Serialize list fields
-        import json
-        user_data["kyc_document_urls"] = json.dumps(user_data.get("kyc_document_urls", []))
+        del user_data["password"]
 
-        return UserRepository.create_user(db, user_data)        
+        # Create user
+        db_user = UserRepository.create_user(db, user_data)
+
+        # Add multiple KYC documents if provided
+        for doc in user.gov_ids:
+            kyc_doc = KycDocument(
+                user_id=db_user.id,
+                gov_id_type=doc.gov_id_type,
+                gov_id_number=doc.gov_id_number,
+                document_url=doc.document_url
+            )
+            db.add(kyc_doc)
+        db.commit()
+
+        return db_user
